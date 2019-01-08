@@ -21,18 +21,28 @@ def getURL(url):
 #'http://www.nfls.com.cn:10443/api/back/questions/2732/answer'
 
 try:
+
+    tp=input("使用内网系统？(Y/N)")
+
+    if tp=="Y" or tp=="y":
+        print("启动内网模式！")
+        tp="192.168.2.14"
+    else:
+        print("正在使用外网模式！")
+        tp="www.nfls.com.cn:10443"
+        
     pid=input("请输入题目ID:")
 
     print("请稍等...")
 
-    res=json.loads(getURL("http://www.nfls.com.cn:10443/api/back/question?serial="+pid),encoding="utf-8")
+    res=json.loads(getURL("http://"+tp+"/api/back/question?serial="+pid),encoding="utf-8")
 
     print("[1/2]",res["message"])
 
     id=res["data"]["id"]
     print("找到问题ID=",id)
 
-    res=json.loads(getURL("http://www.nfls.com.cn:10443/api/back/questions/"+str(id)+"/answer"),encoding="utf-8")
+    res=json.loads(getURL("http://"+tp+"/api/back/questions/"+str(id)+"/answer"),encoding="utf-8")
     print("[2/2]",res["message"])
 
     print("所有题解如下：")
@@ -45,6 +55,9 @@ try:
 except TypeError:
     print("出现了TypeError!可能是题目不存在之类的问题")
     exit(1)
+except urllib.error.URLError:
+    print("出现了URLERROR!可能是内外网错误！尝试切换一下内外网吧！")
+    exit(1)
 
 while True:
     
@@ -53,7 +66,7 @@ while True:
         
         sid-=1
     
-        res2=json.loads(getURL("http://www.nfls.com.cn:10443/api/back/solution/"+str(res["data"]["solutions"][sid]["id"])),encoding="utf-8")
+        res2=json.loads(getURL("http://"+tp+"/api/back/solution/"+str(res["data"]["solutions"][sid]["id"])),encoding="utf-8")
         print("[EX]",res2["message"])
         print("程序如下：",res2["data"]["codeRecord"],sep="\n")
     except IndexError:
